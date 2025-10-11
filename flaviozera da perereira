@@ -1,0 +1,828 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+   Name = "CHEAT ̷̷B̷̷R̷̷A̷̷S̷̷I̷̷L̷̷E̷̷I̷̷R̷̷O̷",
+   Icon = 0,
+   LoadingTitle = "TEVEZ É MINHA ROLA!",
+   LoadingSubtitle = "by Anonymous",
+   ShowText = "Rayfield",
+   Theme = "Default",
+   ToggleUIKeybind = "Z",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "TEVEZ É MINHA ROLA!"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Key System",
+      Subtitle = "Sistema de chave",
+      Note = "Se você não é membro, some.",
+      FileName = "Chave",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Pedrinholindo14"}
+   }
+})
+
+local geral = Window:CreateTab("EB Tevez", 4483362458)
+local sectiongeral = geral:CreateSection("Encontre tudo aqui!")
+
+-- ══════════════════════════════════════
+--               Core				
+-- ══════════════════════════════════════
+local Find = function(Table)
+   for _, Item in pairs(Table or {}) do
+      if typeof(Item) == "table" then return Item end
+   end
+end
+
+local Options = Find(({...})) or {
+   Keybind = "Home",
+   Language = {
+      UI = "pt-br",
+      Words = "pt-br"
+   },
+   Experiments = {},
+   Tempo = 0.03,
+   Rainbow = false,
+}
+
+local Version = "2.2"
+local Parent = gethui and gethui() or game:GetService("CoreGui")
+local require = function(Name)
+   return loadstring(game:HttpGet(string.format("https://raw.githubusercontent.com/Zv-yz/AutoJJs/main/%s.lua", Name)))()
+end
+
+-- ══════════════════════════════════════
+--              Services				
+-- ══════════════════════════════════════
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+-- ══════════════════════════════════════
+--              Modules				
+-- ══════════════════════════════════════
+local UI = require("UI")
+local Extenso = require("Modules/Extenso")
+local Character = require("Modules/Character")
+local RemoteChat = require("Modules/RemoteChat")
+local Request = require("Modules/Request")
+
+-- ══════════════════════════════════════
+--  	        Constants				
+-- ══════════════════════════════════════
+local Char = Character.new(LP)
+local UIElements = UI.UIElements
+local Connections = {}
+
+local Threading
+local FinishedThread = false
+local Toggled = false
+
+local Settings = {
+   Keybind = Options.Keybind or "Home",
+   Started = false,
+   Jump = false,
+   Config = {
+      Start = nil,
+      End = nil,
+      Prefix = nil,
+   }
+}
+
+-- ══════════════════════════════════════
+--              Methods				
+-- ══════════════════════════════════════
+
+local Methods = {
+   ["Normal"] = function(Message, Prefix)
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", Message, Prefix))
+   end,
+   ["Lowercase"] = function(Message, Prefix)
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", string.lower(Message), Prefix))
+   end,
+   ["GJ"] = function(Message, Prefix)
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", string.sub(Message, 1, 1) .. string.lower(string.sub(Message, 2)), Prefix))
+   end,
+   ["HJ"] = function(Message, Prefix)
+      for I = 1, #Message do
+         if Settings["Jump"] then
+            Char:Jump()
+         end
+         RemoteChat:Send(string.format("%s%s", string.sub(Message, I, I), Prefix))
+         task.wait(Options.Tempo)
+      end
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", Message, Prefix))
+   end,
+}
+
+-- JJ normal input (já estava)
+local Input = geral:CreateInput({
+   Name = "JJ's",
+   CurrentValue = "",
+   PlaceholderText = "Quantidade",
+   RemoveTextAfterFocusLost = false,
+   Flag = "Input1",
+   Callback = function(Text)
+      local numero = tonumber(Text)
+      if not numero then
+         warn("⚠️ Digita um número válido aí, pô!")
+         return
+      end
+
+      if numero < 0 then
+         warn("⚠️ Número não pode ser negativo!")
+         return
+      end
+
+      local Prefix = " !"
+      local Method = "Normal"
+      for i = 0, numero do
+         local Success, String = Extenso:Convert(i)
+         if Success then
+            Methods[Method](String, Prefix)
+         else
+            Methods[Method](tostring(i), Prefix)
+         end
+         task.wait(Options.Tempo or 0.03)
+      end
+   end,
+})
+
+-- ══════════════════════════════════════
+--      NOVO INPUT: JJ's 360 e Cx2				
+-- ══════════════════════════════════════
+
+local function Do360()
+   local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+   if hrp then
+      local originalCFrame = hrp.CFrame
+      -- Faz o pulo
+      Char:Jump()
+      -- Gira 360 graus no ar
+      local startTime = tick()
+      local spinDuration = 1 -- tempo para girar
+      while tick() - startTime < spinDuration do
+         hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(10), 0)
+         task.wait()
+      end
+      -- Volta para posição inicial
+      hrp.CFrame = originalCFrame
+   end
+end
+
+local function waitForDoubleC()
+   local cCount = 0
+   local lastPress = 0
+   local timeout = 1 -- segundos para considerar duplo C
+   local finished = false
+
+   local conn
+   conn = UserInputService.InputBegan:Connect(function(input, processed)
+      if processed then return end
+      if input.KeyCode == Enum.KeyCode.C then
+         if tick() - lastPress < timeout then
+            cCount = cCount + 1
+         else
+            cCount = 1
+         end
+         lastPress = tick()
+
+         if cCount >= 2 then
+            finished = true
+            conn:Disconnect()
+         end
+      end
+   end)
+
+   while not finished do
+      task.wait(0.01)
+   end
+end
+
+local Input360 = geral:CreateInput({
+   Name = "Salto PQD",
+   CurrentValue = "",
+   PlaceholderText = "Saltos",
+   RemoveTextAfterFocusLost = false,
+   Flag = "Input2",
+   Callback = function(Text)
+      local numero = tonumber(Text)
+      if not numero then
+         warn("⚠️ Digita um número válido aí, pô!")
+         return
+      end
+
+      if numero < 0 then
+         warn("⚠️ Número não pode ser negativo!")
+         return
+      end
+
+      local Prefix = " !"
+      local Method = "Normal"
+
+      for i = 0, numero do
+         local Success, String = Extenso:Convert(i)
+         -- Faz pulo + 360
+         Do360()
+         -- Espera duplo C
+         waitForDoubleC()
+         -- Só envia mensagem após tudo
+         if Success then
+            Methods[Method](String, Prefix)
+         else
+            Methods[Method](tostring(i), Prefix)
+         end
+      end
+   end,
+})
+
+-- Você pode adicionar outras features Rayfield normalmente abaixo.
+
+local PartesGordas = geral:CreateButton({
+   Name = "Aumentar size Parkour's",
+   Callback = function()
+   local workspace = game:GetService("Workspace")
+
+-- Lista de partes que queremos alterar (exceto quinta e sexta)
+local partes = {
+    {
+        pos = Vector3.new(-248.759033, 30.6854668, 700.106567),
+        size = Vector3.new(1.3196618556976318, 0.6446380615234375, 3.5752806663513184),
+        newSize = Vector3.new(4, 0.6446380615234375, 3.5752806663513184)
+    },
+    {
+        pos = Vector3.new(-267.501801, 17.8147106, 699.850708),
+        size = Vector3.new(17.279979705810547, 1.58441162109375, 1.4248046875),
+        newSize = Vector3.new(18, 200, 1.7999999523162842)
+    },
+    {
+        pos = Vector3.new(-291.003021, 20.771719, 702.502502),
+        size = Vector3.new(8.808707237243652, 0.41710376739501953, 1.7448046207427979),
+        newSize = Vector3.new(10, 0.41710376739501953, 1.7448046207427979)
+    },
+    {
+        pos = Vector3.new(-238.930984, 83.228775, 468.060577),
+        size = Vector3.new(3.392087697982788, 0.42573636770248413, 9.619682312011719),
+        newSize = Vector3.new(5, 0.42573636770248413, 9.619682312011719)
+    }
+}
+
+-- Tolerância de posição
+local tolerance = 1 -- ±1 stud
+
+-- Função pra comparar cores
+local function compareColor(c1, c2)
+    return math.abs(c1.R - c2.R) < 0.01 and math.abs(c1.G - c2.G) < 0.01 and math.abs(c1.B - c2.B) < 0.01
+end
+
+for _, part in ipairs(workspace:GetDescendants()) do
+    if part:IsA("Part") then
+        -- Partes comuns da lista
+        if part.Name == "Part" then
+            for _, p in ipairs(partes) do
+                local diff = part.Position - p.pos
+                if math.abs(diff.X) <= tolerance and math.abs(diff.Y) <= tolerance and math.abs(diff.Z) <= tolerance then
+                    part.Size = p.newSize
+                    print("Parte encontrada em:", part.Position, "novo size:", part.Size)
+                    break
+                end
+            end
+        end
+
+        -- Setima parte especial
+        if part.Name == "Part" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(1.3196618556976318, 0.6446380615234375, 3.5752806663513184) and
+           part.CFrame == CFrame.new(-237.494568, 30.6854534, 699.575562, 0, 0, 1, 0, 1, -0, -1, 0, 0) then
+           
+           part.Size = Vector3.new(3, 0.6446380615234375, 3.5752806663513184)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+        if part.Name == "a" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(1.957672119140625, 0.19999998807907104, 23.809999465942383) and
+           part.CFrame == CFrame.new(-270.97464, 52.3438873, 420.966644, -0.999999523, 0, 0.00129483023, 0, 1, 0, -0.00129483023, 0, -0.999999523) then
+           
+           part.Size = Vector3.new(1.957672119140625, 0.20000000298023224, 26)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+
+
+-- OITAVA parte especial
+        if part.Name == "a" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(2.0704329013824463, 0.4855472445487976, 2.2919914722442627) and
+           part.CFrame == CFrame.new(-221.628891, 18.0106564, 648.329407, -0.999980688, 0, 0.00621515512, 0, 1, 0, -0.00621515512, 0, -0.999980688) then
+           
+           part.Size = Vector3.new(3, 0.6446380615234375, 3.5752806663513184)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+        if part.Name == "a" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(1.957672119140625, 0.19999998807907104, 23.809999465942383) and
+           part.CFrame == CFrame.new(-270.97464, 52.3438873, 420.966644, -0.999999523, 0, 0.00129483023, 0, 1, 0, -0.00129483023, 0, -0.999999523) then
+           
+           part.Size = Vector3.new(1.957672119140625, 0.20000000298023224, 26)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+
+
+        -- Sexta parte especial (torre)
+        if part.Name == "torre" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.CFrame == CFrame.new(-214.415649, 45.7863045, 476.772491, 0.0012204051, 0, 0.999999285, 0, 1, 0, -0.999999285, 0, 0.0012204051) then
+           
+           part.Size = Vector3.new(1.0999999046325684, 73.69999694824219, 1.2000000476837158)
+           print("Parte especial 'torre' encontrada e atualizada!", part)
+        end
+    end
+end
+
+   end,
+})
+
+local AntiAfk = geral:CreateButton({
+   Name = "AntiAFK",
+   Callback = function()
+   while true do
+    local args = {
+        [1] = false
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("Assets"):WaitForChild("Remotes"):WaitForChild("AFK"):FireServer(unpack(args))
+    wait(0.1) 
+end
+   end,
+})
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Window = Rayfield:CreateWindow({
+   Name = "CHEAT ̷̷B̷̷R̷̷A̷̷S̷̷I̷̷L̷̷E̷̷I̷̷R̷̷O̷",
+   Icon = 0,
+   LoadingTitle = "TEVEZ É MINHA ROLA!",
+   LoadingSubtitle = "by Anonymous",
+   ShowText = "Rayfield",
+   Theme = "Default",
+   ToggleUIKeybind = "Z",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "TEVEZ É MINHA ROLA!"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Key System",
+      Subtitle = "Sistema de chave",
+      Note = "Se você não é membro, some.",
+      FileName = "Chave",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Pedrinholindo14"}
+   }
+})
+
+local geral = Window:CreateTab("EB Tevez", 4483362458)
+local sectiongeral = geral:CreateSection("Encontre tudo aqui!")
+
+-- ══════════════════════════════════════
+--               Core				
+-- ══════════════════════════════════════
+local Find = function(Table)
+   for _, Item in pairs(Table or {}) do
+      if typeof(Item) == "table" then return Item end
+   end
+end
+
+local Options = Find(({...})) or {
+   Keybind = "Home",
+   Language = {
+      UI = "pt-br",
+      Words = "pt-br"
+   },
+   Experiments = {},
+   Tempo = 0.03,
+   Rainbow = false,
+}
+
+local Version = "2.2"
+local Parent = gethui and gethui() or game:GetService("CoreGui")
+local require = function(Name)
+   return loadstring(game:HttpGet(string.format("https://raw.githubusercontent.com/Zv-yz/AutoJJs/main/%s.lua", Name)))()
+end
+
+-- ══════════════════════════════════════
+--              Services				
+-- ══════════════════════════════════════
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+-- ══════════════════════════════════════
+--              Modules				
+-- ══════════════════════════════════════
+local UI = require("UI")
+local Extenso = require("Modules/Extenso")
+local Character = require("Modules/Character")
+local RemoteChat = require("Modules/RemoteChat")
+local Request = require("Modules/Request")
+
+-- ══════════════════════════════════════
+--  	        Constants				
+-- ══════════════════════════════════════
+local Char = Character.new(LP)
+local UIElements = UI.UIElements
+local Connections = {}
+
+local Threading
+local FinishedThread = false
+local Toggled = false
+
+local Settings = {
+   Keybind = Options.Keybind or "Home",
+   Started = false,
+   Jump = false,
+   Config = {
+      Start = nil,
+      End = nil,
+      Prefix = nil,
+   }
+}
+
+-- ══════════════════════════════════════
+--              Methods				
+-- ══════════════════════════════════════
+
+local Methods = {
+   ["Normal"] = function(Message, Prefix)
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", Message, Prefix))
+   end,
+   ["Lowercase"] = function(Message, Prefix)
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", string.lower(Message), Prefix))
+   end,
+   ["GJ"] = function(Message, Prefix)
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", string.sub(Message, 1, 1) .. string.lower(string.sub(Message, 2)), Prefix))
+   end,
+   ["HJ"] = function(Message, Prefix)
+      for I = 1, #Message do
+         if Settings["Jump"] then
+            Char:Jump()
+         end
+         RemoteChat:Send(string.format("%s%s", string.sub(Message, I, I), Prefix))
+         task.wait(Options.Tempo)
+      end
+      if Settings["Jump"] then
+         Char:Jump()
+      end
+      RemoteChat:Send(string.format("%s%s", Message, Prefix))
+   end,
+}
+
+-- JJ normal input (já estava)
+local Input = geral:CreateInput({
+   Name = "JJ's",
+   CurrentValue = "",
+   PlaceholderText = "Quantidade",
+   RemoveTextAfterFocusLost = false,
+   Flag = "Input1",
+   Callback = function(Text)
+      local numero = tonumber(Text)
+      if not numero then
+         warn("⚠️ Digita um número válido aí, pô!")
+         return
+      end
+
+      if numero < 0 then
+         warn("⚠️ Número não pode ser negativo!")
+         return
+      end
+
+      local Prefix = " !"
+      local Method = "Normal"
+      for i = 0, numero do
+         local Success, String = Extenso:Convert(i)
+         if Success then
+            Methods[Method](String, Prefix)
+         else
+            Methods[Method](tostring(i), Prefix)
+         end
+         task.wait(Options.Tempo or 0.03)
+      end
+   end,
+})
+
+-- ══════════════════════════════════════
+--      NOVO INPUT: JJ's 360 e Cx2				
+-- ══════════════════════════════════════
+
+local function Do360()
+   local hrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+   if hrp then
+      local originalCFrame = hrp.CFrame
+      -- Faz o pulo
+      Char:Jump()
+      -- Gira 360 graus no ar
+      local startTime = tick()
+      local spinDuration = 0.5 -- tempo para girar
+      while tick() - startTime < spinDuration do
+         hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(10), 0)
+         task.wait()
+      end
+      -- Volta para posição inicial
+      hrp.CFrame = originalCFrame
+   end
+end
+
+local function waitForDoubleC()
+   local cCount = 0
+   local lastPress = 0
+   local timeout = 1 -- segundos para considerar duplo C
+   local finished = false
+
+   local conn
+   conn = UserInputService.InputBegan:Connect(function(input, processed)
+      if processed then return end
+      if input.KeyCode == Enum.KeyCode.C then
+         if tick() - lastPress < timeout then
+            cCount = cCount + 1
+         else
+            cCount = 1
+         end
+         lastPress = tick()
+
+         if cCount >= 2 then
+            finished = true
+            conn:Disconnect()
+         end
+      end
+   end)
+
+   while not finished do
+      task.wait(0.01)
+   end
+end
+
+local Input360 = geral:CreateInput({
+   Name = "Salto PQD",
+   CurrentValue = "",
+   PlaceholderText = "Saltos",
+   RemoveTextAfterFocusLost = false,
+   Flag = "Input2",
+   Callback = function(Text)
+      local numero = tonumber(Text)
+      if not numero then
+         warn("⚠️ Digita um número válido aí, pô!")
+         return
+      end
+
+      if numero < 0 then
+         warn("⚠️ Número não pode ser negativo!")
+         return
+      end
+
+      local Prefix = " !"
+      local Method = "Normal"
+
+      for i = 0, numero do
+         local Success, String = Extenso:Convert(i)
+         -- Faz pulo + 360
+         Do360()
+         -- Espera duplo C
+         waitForDoubleC()
+         -- Só envia mensagem após tudo
+         if Success then
+            Methods[Method](String, Prefix)
+         else
+            Methods[Method](tostring(i), Prefix)
+         end
+      end
+   end,
+})
+
+-- Você pode adicionar outras features Rayfield normalmente abaixo.
+
+local PartesGordas = geral:CreateButton({
+   Name = "Aumentar size Parkour's",
+   Callback = function()
+   local workspace = game:GetService("Workspace")
+
+-- Lista de partes que queremos alterar (exceto quinta e sexta)
+local partes = {
+    {
+        pos = Vector3.new(-248.759033, 30.6854668, 700.106567),
+        size = Vector3.new(1.3196618556976318, 0.6446380615234375, 3.5752806663513184),
+        newSize = Vector3.new(4, 0.6446380615234375, 3.5752806663513184)
+    },
+    {
+        pos = Vector3.new(-267.501801, 17.8147106, 699.850708),
+        size = Vector3.new(17.279979705810547, 1.58441162109375, 1.4248046875),
+        newSize = Vector3.new(18, 200, 1.7999999523162842)
+    },
+    {
+        pos = Vector3.new(-291.003021, 20.771719, 702.502502),
+        size = Vector3.new(8.808707237243652, 0.41710376739501953, 1.7448046207427979),
+        newSize = Vector3.new(10, 0.41710376739501953, 1.7448046207427979)
+    },
+    {
+        pos = Vector3.new(-238.930984, 83.228775, 468.060577),
+        size = Vector3.new(3.392087697982788, 0.42573636770248413, 9.619682312011719),
+        newSize = Vector3.new(5, 0.42573636770248413, 9.619682312011719)
+    }
+}
+
+-- Tolerância de posição
+local tolerance = 1 -- ±1 stud
+
+-- Função pra comparar cores
+local function compareColor(c1, c2)
+    return math.abs(c1.R - c2.R) < 0.01 and math.abs(c1.G - c2.G) < 0.01 and math.abs(c1.B - c2.B) < 0.01
+end
+
+for _, part in ipairs(workspace:GetDescendants()) do
+    if part:IsA("Part") then
+        -- Partes comuns da lista
+        if part.Name == "Part" then
+            for _, p in ipairs(partes) do
+                local diff = part.Position - p.pos
+                if math.abs(diff.X) <= tolerance and math.abs(diff.Y) <= tolerance and math.abs(diff.Z) <= tolerance then
+                    part.Size = p.newSize
+                    print("Parte encontrada em:", part.Position, "novo size:", part.Size)
+                    break
+                end
+            end
+        end
+
+        -- Setima parte especial
+        if part.Name == "Part" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(1.3196618556976318, 0.6446380615234375, 3.5752806663513184) and
+           part.CFrame == CFrame.new(-237.494568, 30.6854534, 699.575562, 0, 0, 1, 0, 1, -0, -1, 0, 0) then
+           
+           part.Size = Vector3.new(3, 0.6446380615234375, 3.5752806663513184)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+        if part.Name == "a" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(1.957672119140625, 0.19999998807907104, 23.809999465942383) and
+           part.CFrame == CFrame.new(-270.97464, 52.3438873, 420.966644, -0.999999523, 0, 0.00129483023, 0, 1, 0, -0.00129483023, 0, -0.999999523) then
+           
+           part.Size = Vector3.new(1.957672119140625, 0.20000000298023224, 26)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+
+
+-- OITAVA parte especial
+        if part.Name == "a" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(2.0704329013824463, 0.4855472445487976, 2.2919914722442627) and
+           part.CFrame == CFrame.new(-221.628891, 18.0106564, 648.329407, -0.999980688, 0, 0.00621515512, 0, 1, 0, -0.00621515512, 0, -0.999980688) then
+           
+           part.Size = Vector3.new(3, 0.6446380615234375, 3.5752806663513184)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+        if part.Name == "a" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.Size == Vector3.new(1.957672119140625, 0.19999998807907104, 23.809999465942383) and
+           part.CFrame == CFrame.new(-270.97464, 52.3438873, 420.966644, -0.999999523, 0, 0.00129483023, 0, 1, 0, -0.00129483023, 0, -0.999999523) then
+           
+           part.Size = Vector3.new(1.957672119140625, 0.20000000298023224, 26)
+           print("Parte especial 'a' encontrada e atualizada!", part)
+        end
+
+
+        -- Sexta parte especial (torre)
+        if part.Name == "torre" and compareColor(part.Color, Color3.fromRGB(124, 92, 70)) and
+           part.Material == Enum.Material.Wood and
+           part.CFrame == CFrame.new(-214.415649, 45.7863045, 476.772491, 0.0012204051, 0, 0.999999285, 0, 1, 0, -0.999999285, 0, 0.0012204051) then
+           
+           part.Size = Vector3.new(1.0999999046325684, 73.69999694824219, 1.2000000476837158)
+           print("Parte especial 'torre' encontrada e atualizada!", part)
+        end
+    end
+end
+
+   end,
+})
+
+local AntiAfk = geral:CreateButton({
+   Name = "AntiAFK",
+   Callback = function()
+   while true do
+    local args = {
+        [1] = false
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("Assets"):WaitForChild("Remotes"):WaitForChild("AFK"):FireServer(unpack(args))
+    wait(0.1) 
+end
+   end,
+})
+
+local Input = geral:CreateInput({
+   Name = "Comandos Volver's",
+   CurrentValue = "",
+   PlaceholderText = "Ex: 10D ou 3E",
+   RemoveTextAfterFocusLost = false,
+   Flag = "Input1",
+   Callback = function(Text)
+       local Number = tonumber(Text:match("%d+")) -- Pega o número (ex: 10)
+       local Command = Text:match("%a$") -- Pega a letra no final (ex: D ou E)
+
+       if not Number or not Command then
+           Rayfield:Notify({
+               Title = "ERRO",
+               Content = "Formato inválido! Exemplo: 10D ou 3E",
+               Duration = 6.5,
+               Image = 4483362458,
+           })
+           return
+       end
+
+       local directionName = "Desconhecido"
+       local result = Number % 4
+
+       if Command:upper() == "D" then
+           -- DIREITA VOLVER
+           if result == 1 then
+               directionName = "Direita"
+           elseif result == 2 then
+               directionName = "Atrás"
+           elseif result == 3 then
+               directionName = "Esquerda"
+           elseif result == 0 then
+               directionName = "Frente"
+           end
+       elseif Command:upper() == "E" then
+           -- ESQUERDA VOLVER
+           if result == 1 then
+               directionName = "Esquerda"
+           elseif result == 2 then
+               directionName = "Atrás"
+           elseif result == 3 then
+               directionName = "Direita"
+           elseif result == 0 then
+               directionName = "Frente"
+           end
+       else
+           Rayfield:Notify({
+               Title = "ERRO",
+               Content = "Comando não reconhecido! Use apenas D ou E.",
+               Duration = 6.5,
+               Image = 4483362458,
+           })
+           return
+       end
+
+       -- Mostra notificação final com o lado
+       Rayfield:Notify({
+           Title = "LADO",
+           Content = directionName,
+           Duration = 6.5,
+           Image = 4483362458,
+       })
+   end,
+})
+
+
+local Button = geral:CreateButton({
+   Name = "Aimbot (Botão direito do mouse [NÃO DESATIVA!]",
+   Callback = function()
+   loadstring(game:HttpGet("https://raw.githubusercontent.com/caraqualquer/flavin-do-grau/refs/heads/main/za"))()()
+   end,
+})
